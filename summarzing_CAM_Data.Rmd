@@ -52,9 +52,9 @@ usePackage("meta")
 ################
 # load data
 ################
-study2canada <- xlsx::read.xlsx2(file = "study2canada_indicatorsCAMs_long.xlsx", sheetIndex = 1)
-study2germany <- xlsx::read.xlsx2(file = "study2germany_indicatorsCAMs_long.xlsx", sheetIndex = 1)
-study3 <- xlsx::read.xlsx2(file = "study3_indicatorsCAMs_long.xlsx", sheetIndex = 1)
+study2canada <- xlsx::read.xlsx2(file = "data/study2canada_indicatorsCAMs_long.xlsx", sheetIndex = 1)
+study2germany <- xlsx::read.xlsx2(file = "data/study2germany_indicatorsCAMs_long.xlsx", sheetIndex = 1)
+study3 <- xlsx::read.xlsx2(file = "data/study3_indicatorsCAMs_long.xlsx", sheetIndex = 1)
 
 
 study2canada <- as.data.frame(sapply(study2canada, as.numeric))
