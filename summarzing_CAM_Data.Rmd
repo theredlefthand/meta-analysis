@@ -1,0 +1,151 @@
+---
+title: "summarizing CAM Data"
+author: "Noah, Julius"
+date: "26 3 2021"
+output: 
+  html_document:
+    toc: yes
+    toc_depth: 3
+    number_sections: true
+bibliography: LibraryAll.bib
+biblio-style: apalike
+link-citations: yes
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE) # define default chunk options
+
+
+# sets the directory of location of this script as the current directory
+setwd(dirname(rstudioapi::getSourceEditorContext()$path)) 
+
+################
+# install and load packages
+################
+# wenn Pakete nicht bereits installiert sind, wird die Funktion diese installieren und aktivieren
+usePackage <- function(p) {
+  if (!is.element(p, installed.packages()[,1]))
+    install.packages(p, dep = TRUE)
+  require(p, character.only = TRUE)
+}
+## Fehlerbehandlung Pakete in R base installieren
+# options(repos="https://CRAN.R-project.org")
+
+usePackage("tidyverse") # data cleaning and summarizing
+usePackage("xlsx") # data cleaning and summarizing
+
+## text mining / textprocessing
+usePackage("SentimentAnalysis")
+# usePackage("tm")
+# usePackage("qdap")
+## output tables
+usePackage("stargazer") # Tabellen erstellen
+# usePackage("Cairo") # Umgebung, um Grafiken zu speichern
+## psychometric analysis
+usePackage("psych") 
+
+## meta analysis
+usePackage("metafor")
+usePackage("meta")
+
+
+################
+# load data
+################
+study2canada <- xlsx::read.xlsx2(file = "study2canada_indicatorsCAMs_long.xlsx", sheetIndex = 1)
+study2germany <- xlsx::read.xlsx2(file = "study2germany_indicatorsCAMs_long.xlsx", sheetIndex = 1)
+study3 <- xlsx::read.xlsx2(file = "study3_indicatorsCAMs_long.xlsx", sheetIndex = 1)
+
+
+study2canada <- as.data.frame(sapply(study2canada, as.numeric))
+study2germany <- as.data.frame(sapply(study2germany, as.numeric))
+study3 <- as.data.frame(sapply(study3, as.numeric))
+```
+
+This is an [R Markdown](http://rmarkdown.rstudio.com) document. Instructions for writing these documents and background information can be found in the book [R Markdown: The Definitive Guide](https://bookdown.org/yihui/rmarkdown/). When you execute code within the document, the results appear beneath the code. 
+
+The aim of this document is to summarize CAM data over different studies. Therefore descreptive and metaanalytical procedures are applied. Fundamental sources for this procedures are [Doing Meta-Analysis in R](https://bookdown.org/MathiasHarrer/Doing_Meta_Analysis_in_R/) and @borenstein2009meta
+
+# Existing CAM data
+
+* 2 COVID-19 Datensätze
+* 1 Datensatz aus 2 Mas (David, Niklas)
+* 1 Datensatz aus Ethikseminar
+* 1 Datensatz aus Mediationsdesign
+* (1 Datensatz Lebens-CAMs) - in Klammern da anderes Konstruktionsprinzip, da angeleitet und von ExpertInnen
+
+# Violations of CAM rules
+incompatible connections... @thagard2010empathica
+
+
+
+# apply semantic dictionaries
+correlation between valence of single nodes and dictionary
+
+
+# descreptive statististics of network indicators
+
+## number of nodes and edges
+```{r nodes1, results='asis'}
+
+descreptivefunc <- function(datasets = list(study2canada, study2germany, study3), variable = NULL){
+  vec_means <- rep(NA, times = length(datasets)) # c()
+  vec_sds <- rep(NA, times = length(datasets))
+  for(i in 1:length(datasets)){
+
+    vec_means[i] <- mean(unlist(datasets[[i]][variable]), na.rm = TRUE)
+    vec_sds[i] <- sd(unlist(datasets[[i]][variable]), na.rm = TRUE)
+  }
+  
+  combineddataframe <- data.frame(studies = c("study2canada", "study2germany", "study3"),
+             mean = vec_means,
+             sd = vec_sds)
+  
+  return(combineddataframe)
+}
+
+
+descreptivefunc(variable = "num_nodes") %>% 
+  stargazer(summary = FALSE, type = "html", digits = 2)
+
+```
+
+
+```{r nodes2, results='markup'}
+descreptivefunc(variable = "num_nodes")
+```
+
+```{r nodes3, results='test'}
+allthree <- rbind(study2canada, study2germany, study3)
+
+study2canada$group <- "study2canada"
+study2germany$group <- "study2germany"
+study3$group <- "study3"
+three <- rbind(study2canada, study2germany, study3)
+# or
+# reflective_column <- function(df, colname = "group") {df[[colname]] <- deparse(substitute(df)); df}
+# three <- rbind(reflective_column(study2canada), reflective_column(study2germany), reflective_column(study3))
+
+three %>%
+  group_by(group) %>% 
+  summarise(mean(meanDistance_directed))
+
+study2canada %>% 
+  summarise(mean(num_nodes))
+
+```
+
+
+# correlations of network indicators
+
+
+# topology of CAMs
+Blah blah [see @MAkreil2018staircaseelevator, pp. 20ff.]...
+
+
+# additionally: feedback to CAM software
+
+
+# additionally: comments to single nodes
+
+# References
