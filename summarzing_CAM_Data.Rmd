@@ -130,8 +130,19 @@ three %>%
   group_by(group) %>% 
   summarise(mean(meanDistance_directed))
 
-study2canada %>% 
+three %>% 
+  group_by(group) %>% 
   summarise(mean(num_nodes))
+
+# Ideen:
+# Percentage of nodes other than 0
+# If more node variation then X more often?
+
+nodes_ambi_count <- three %>%
+  group_by(group) %>%
+  count(num_nodes_ambi) > 0
+
+
 
 ```
 
