@@ -134,13 +134,19 @@ three %>%
   group_by(group) %>% 
   summarise(mean(num_nodes))
 
+three %>% 
+  group_by(group) %>% 
+  summarise(mean(mean_valence), median(mean_valence), sd(mean_valence))
+
 # Ideen:
 # Percentage of nodes other than 0
 # If more node variation then X more often?
+# Falls num_nodes gering ausfällt, fallen dann auch andere nodes geringer aus?
 
-nodes_ambi_count <- three %>%
+three %>%
   group_by(group) %>%
-  count(num_nodes_ambi) > 0
+  count(num_nodes_ambi)
+
 
 
 
