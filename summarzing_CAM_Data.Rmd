@@ -143,13 +143,23 @@ three %>%
 # If more node variation then X more often?
 # Falls mean von num_nodes gering ausfällt, fallen dann auch andere nodes geringer aus?
 # Hat mean_valence einen Einfluss auf X?
+# num_nodes_pos minus num_nodes_neg
 
 three %>%
   group_by(group) %>%
   count(num_nodes_ambi)
 
 # Percentage of nodes other than 0
-with(three, c(sum(num_nodes_ambi > 0)) / 337)
+# teilt noch nicht durch die gezählte Anzahl an Zeilen (nrows) sondern durch die manuell gezählte
+with(three, c(sum(num_nodes_ambi > 0)) / nrows(three))
+
+# If more node variation then X more often?
+
+# num_nodes_pos minus num_nodes_neg
+
+three %>% 
+  group_by(group) %>% 
+  summarise(mean(num_nodes_pos - num_nodes_neg))
 
 
 ```
