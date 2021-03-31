@@ -138,12 +138,16 @@ three %>%
   group_by(group) %>% 
   summarise(mean(mean_valence), median(mean_valence), sd(mean_valence))
 
+boxplot(three$num_edges_dashed)
+
+
 # Ideen:
 # Percentage of nodes other than 0
 # If more node variation then X more often?
 # Falls mean von num_nodes gering ausfällt, fallen dann auch andere nodes geringer aus?
 # Hat mean_valence einen Einfluss auf X?
 # num_nodes_pos minus num_nodes_neg
+# Wenn durchschnittlich mehr nodes auch gleich durchschnittlich mehr num_edges?
 
 three %>%
   group_by(group) %>%
@@ -151,7 +155,7 @@ three %>%
 
 # Percentage of nodes other than 0
 # teilt noch nicht durch die gezählte Anzahl an Zeilen (nrows) sondern durch die manuell gezählte
-with(three, c(sum(num_nodes_ambi > 0)) / nrows(three))
+with(three, c(sum(num_nodes_ambi > 0)) / 337)
 
 # If more node variation then X more often?
 
@@ -161,6 +165,12 @@ three %>%
   group_by(group) %>% 
   summarise(mean(num_nodes_pos - num_nodes_neg))
 
+# Wenn durchschnittlich mehr nodes auch gleich durchschnittlich mehr num_edges?
+
+with(three, c(sum(num_nodes > num_edges)))
+with(three, c(sum(num_nodes < num_edges)))
+with(three, c(sum(mean(num_nodes) > num_edges)))
+with(three, c(sum(mean(num_nodes) < num_edges)))
 
 ```
 
