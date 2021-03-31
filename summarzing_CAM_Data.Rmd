@@ -148,7 +148,8 @@ three %>%
   group_by(group) %>%
   count(num_nodes_ambi)
 
-
+# Percentage of nodes other than 0
+with(three, c(sum(num_nodes_ambi > 0)) / 337)
 
 
 ```
