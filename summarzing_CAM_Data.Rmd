@@ -33,6 +33,7 @@ usePackage <- function(p) {
 
 usePackage("tidyverse") # data cleaning and summarizing
 usePackage("xlsx") # data cleaning and summarizing
+usePackage("purr") # data cleaning and summarizing
 
 ## text mining / textprocessing
 usePackage("SentimentAnalysis")
@@ -62,6 +63,7 @@ study3 <- xlsx::read.xlsx2(file = "data/study3_indicatorsCAMs_long.xlsx", sheetI
 study2canada <- as.data.frame(sapply(study2canada, as.numeric))
 study2germany <- as.data.frame(sapply(study2germany, as.numeric))
 study3 <- as.data.frame(sapply(study3, as.numeric))
+
 ```
 
 ```{r data preperation, include=FALSE}
@@ -144,7 +146,7 @@ descreptivefunc(variable = "num_nodes") %>%
 descreptivefunc(variable = "num_nodes")
 ```
 
-```{r nodes3, results='test'}
+```{r nodes3, results='markup'}
 three %>%
   group_by(group) %>% 
   summarise(mean(meanDistance_directed))
@@ -174,7 +176,13 @@ three %>%
 
 # Percentage of nodes other than 0
 # teilt noch nicht durch die gezählte Anzahl an Zeilen (nrows) sondern durch die manuell gezählte
-with(three, c(sum(num_nodes_ambi > 0)) / 337)
+
+
+# building a table (wip)
+
+table(with(three, c(sum(num_nodes_ambi > 0)) / nrow(three)), with(three, c(sum(num_nodes_neut > 0)) / nrow(three)))
+  
+
 
 # If more node variation then X more often?
 
