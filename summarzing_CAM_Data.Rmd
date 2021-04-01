@@ -187,6 +187,9 @@ three %>%
 # Wenn durchschnittlich mehr nodes auch gleich durchschnittlich mehr num_edges?
 
 with(three, c(sum(num_nodes > num_edges)))
+paste0(three$group[with(three, num_nodes > num_edges)], three$CAM_ID[with(three, num_nodes > num_edges)])
+
+
 with(three, c(sum(num_nodes < num_edges)))
 with(three, c(sum(mean(num_nodes) > num_edges)))
 with(three, c(sum(mean(num_nodes) < num_edges)))
