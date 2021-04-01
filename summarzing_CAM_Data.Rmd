@@ -1,5 +1,5 @@
 ---
-title: "summarizing CAM Data 2"
+title: "summarizing CAM Data"
 author: "Noah, Julius"
 date: "26 3 2021"
 output: 
@@ -48,6 +48,8 @@ usePackage("psych")
 usePackage("metafor")
 usePackage("meta")
 
+## save pictures
+usePackage("Cairo")
 
 ################
 # load data
@@ -62,6 +64,52 @@ study2germany <- as.data.frame(sapply(study2germany, as.numeric))
 study3 <- as.data.frame(sapply(study3, as.numeric))
 ```
 
+```{r data preperation, include=FALSE}
+allthree <- rbind(study2canada, study2germany, study3)
+
+study2canada$group <- "study2canada"
+study2germany$group <- "study2germany"
+study3$group <- "study3"
+three <- rbind(study2canada, study2germany, study3)
+
+three$centralityDummy_CoronaPandemie <- NULL # constant, data entry error
+# or
+# reflective_column <- function(df, colname = "group") {df[[colname]] <- deparse(substitute(df)); df}
+# three <- rbind(reflective_column(study2canada), reflective_column(study2germany), reflective_column(study3))
+```
+
+```{r functions, include=FALSE}
+## create descreptive tables: 
+descreptivefunc <- function(datasets = list(study2canada, study2germany, study3), variable = NULL){
+  vec_means <- rep(NA, times = length(datasets)) # c()
+  vec_sds <- rep(NA, times = length(datasets))
+  for(i in 1:length(datasets)){
+
+    vec_means[i] <- mean(unlist(datasets[[i]][variable]), na.rm = TRUE)
+    vec_sds[i] <- sd(unlist(datasets[[i]][variable]), na.rm = TRUE)
+  }
+  
+  combineddataframe <- data.frame(studies = c("study2canada", "study2germany", "study3"),
+             mean = vec_means,
+             sd = vec_sds)
+  
+  return(combineddataframe)
+}
+
+## save pictures
+# ?ggplot2::ggsave()
+save_graphic <- function(filename){
+  tmp <- paste(filename, ".png", sep = "")
+  Cairo::Cairo(file=tmp,
+               type="png",
+               units="px",
+               width=2500,
+               height=1700,
+               pointsize=44, #text is shrinking by saving graphic
+               dpi= "auto",
+               bg = "white")
+}
+```
 This is an [R Markdown](http://rmarkdown.rstudio.com) document. Instructions for writing these documents and background information can be found in the book [R Markdown: The Definitive Guide](https://bookdown.org/yihui/rmarkdown/). When you execute code within the document, the results appear beneath the code. 
 
 The aim of this document is to summarize CAM data over different studies. Therefore descreptive and metaanalytical procedures are applied. Fundamental sources for this procedures are [Doing Meta-Analysis in R](https://bookdown.org/MathiasHarrer/Doing_Meta_Analysis_in_R/) and @borenstein2009meta
@@ -87,27 +135,8 @@ correlation between valence of single nodes and dictionary
 
 ## number of nodes and edges
 ```{r nodes1, results='asis'}
-
-descreptivefunc <- function(datasets = list(study2canada, study2germany, study3), variable = NULL){
-  vec_means <- rep(NA, times = length(datasets)) # c()
-  vec_sds <- rep(NA, times = length(datasets))
-  for(i in 1:length(datasets)){
-
-    vec_means[i] <- mean(unlist(datasets[[i]][variable]), na.rm = TRUE)
-    vec_sds[i] <- sd(unlist(datasets[[i]][variable]), na.rm = TRUE)
-  }
-  
-  combineddataframe <- data.frame(studies = c("study2canada", "study2germany", "study3"),
-             mean = vec_means,
-             sd = vec_sds)
-  
-  return(combineddataframe)
-}
-
-
 descreptivefunc(variable = "num_nodes") %>% 
   stargazer(summary = FALSE, type = "html", digits = 2)
-
 ```
 
 
@@ -116,16 +145,6 @@ descreptivefunc(variable = "num_nodes")
 ```
 
 ```{r nodes3, results='test'}
-allthree <- rbind(study2canada, study2germany, study3)
-
-study2canada$group <- "study2canada"
-study2germany$group <- "study2germany"
-study3$group <- "study3"
-three <- rbind(study2canada, study2germany, study3)
-# or
-# reflective_column <- function(df, colname = "group") {df[[colname]] <- deparse(substitute(df)); df}
-# three <- rbind(reflective_column(study2canada), reflective_column(study2germany), reflective_column(study3))
-
 three %>%
   group_by(group) %>% 
   summarise(mean(meanDistance_directed))
@@ -186,5 +205,24 @@ Blah blah [see @MAkreil2018staircaseelevator, pp. 20ff.]...
 
 
 # additionally: comments to single nodes
+
+# Julius code
+```{r randomcode 1, results='markup'}
+three %>%
+  mutate(baseline = mean(num_nodes), baselineboolean = as.numeric(num_nodes < baseline)) %>%
+  group_by(group, baselineboolean) %>%
+  summarise(mean(num_nodes_pos))
+```
+
+```{r randomcode 2, results='markup'}
+psych::cor.plot(r = cor(three[, 2:23], use = "pairwise.complete.obs"), upper = FALSE, xlas = 2)
+# save_graphic(filename = "network indicators all datasets")
+# psych::cor.plot(r = cor(three[, 2:23], use = "pairwise.complete.obs"), upper = FALSE, xlas = 2)
+# dev.off()
+```
+
+
+
+
 
 # References
