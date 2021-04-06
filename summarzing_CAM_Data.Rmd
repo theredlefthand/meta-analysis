@@ -180,9 +180,11 @@ three %>%
 
 # building a table (wip)
 
-table(with(three, c(sum(num_nodes_ambi > 0)) / nrow(three)), with(three, c(sum(num_nodes_neut > 0)) / nrow(three)))
-  
+nodes_ambi_bigger0 <- with(three, c(sum(num_nodes_ambi > 0)) / nrow(three))
 
+nodes_neut_bigger0 <- with(three, c(sum(num_nodes_neut > 0)) / nrow(three))
+                             
+nodes_plot <- data.frame(nodes_ambi_bigger0, nodes_neut_bigger0)
 
 # If more node variation then X more often?
 
