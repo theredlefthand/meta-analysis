@@ -229,6 +229,8 @@ three %>%
 
 ```{r randomcode 2, results='markup'}
 psych::cor.plot(r = cor(three[, 2:23], use = "pairwise.complete.obs"), upper = FALSE, xlas = 2)
+three$num_edges_invaliddashedpercent <- three$num_edges_invaliddashed / three$num_edges_dashed
+
 # save_graphic(filename = "network indicators all datasets")
 # psych::cor.plot(r = cor(three[, 2:23], use = "pairwise.complete.obs"), upper = FALSE, xlas = 2)
 # dev.off()
