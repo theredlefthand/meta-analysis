@@ -211,8 +211,11 @@ three$num_edges_invaliddashedpercent <- three$num_edges_invaliddashed / three$nu
 three %>%
   group_by(group) %>%
   filter(!is.na(num_edges_invaliddashedpercent)) %>%
-  summarise(mean(num_edges_invaliddashedpercent))
+  summarise(mean(num_edges_invaliddashedpercent), n())
 
+three %>%
+  group_by(group) %>%
+  summarise(sum(is.na(num_edges_invaliddashedpercent)))
 
 ```
 
