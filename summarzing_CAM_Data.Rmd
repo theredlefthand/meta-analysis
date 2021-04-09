@@ -1,5 +1,5 @@
 ---
-title: "summarizing CAM Data v02"
+title: "summarizing CAM Data v03"
 author: "Noah, Julius"
 date: "01 04 2021"
 output: 
@@ -25,7 +25,7 @@ setwd(dirname(rstudioapi::getSourceEditorContext()$path))
 # wenn Pakete nicht bereits installiert sind, wird die Funktion diese installieren und aktivieren
 usePackage <- function(p) {
   if (!is.element(p, installed.packages()[,1]))
-    install.packages(p, dep = TRUE)
+    install.packages(p, dep = TRUE, repos = "http://cran.us.r-project.org")
   require(p, character.only = TRUE)
 }
 ## Fehlerbehandlung Pakete in R base installieren
