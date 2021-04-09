@@ -204,6 +204,19 @@ with(three, c(sum(num_nodes < num_edges)))
 with(three, c(sum(mean(num_nodes) > num_edges)))
 with(three, c(sum(mean(num_nodes) < num_edges)))
 
+# Invalid dashed
+
+three$num_edges_invaliddashedpercent <- three$num_edges_invaliddashed / three$num_edges_dashed
+
+three %>%
+  group_by(group) %>%
+  filter(!is.na(num_edges_invaliddashedpercent)) %>%
+  summarise(mean(num_edges_invaliddashedpercent), n())
+
+three %>%
+  group_by(group) %>%
+  summarise(sum(is.na(num_edges_invaliddashedpercent)))
+
 ```
 
 
