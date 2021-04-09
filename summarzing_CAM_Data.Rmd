@@ -208,14 +208,33 @@ with(three, c(sum(mean(num_nodes) < num_edges)))
 
 three$num_edges_invaliddashedpercent <- three$num_edges_invaliddashed / three$num_edges_dashed
 
-three %>%
+table2_nona <- three %>%
   group_by(group) %>%
   filter(!is.na(num_edges_invaliddashedpercent)) %>%
   summarise(mean(num_edges_invaliddashedpercent), n())
 
-three %>%
+table2_withna <- three %>%
   group_by(group) %>%
   summarise(sum(is.na(num_edges_invaliddashedpercent)))
+
+table2 <- cbind(table2_nona, table2_withna)
+
+table2 <- three %>%
+        group_by(group) %>%
+        filter(!is.na(num_edges_invaliddashedpercent)) %>%
+        summarise(my_mean = mean(num_edges_invaliddashedpercent),
+                  n = n(),
+                  my_sum = sum(is.na(num_edges_invaliddashedpercent)))
+
+table2
+
+table_whyisdashedhigh <- three %>%
+  group_by(group) %>%
+  filter(!is.na(num_edges_invaliddashedpercent)) %>%
+  summarise_if(is.numeric, mean)
+
+table_whyisdashedhigh
+
 
 ```
 
@@ -250,7 +269,12 @@ three$num_edges_invaliddashedpercent <- three$num_edges_invaliddashed / three$nu
 ```
 
 
+# Random notes
 
+# delete a directory -- must add recursive = TRUE
+# unlink("some_directory", recursive = TRUE)
+# wieder löschen
+# see: http://theautomatic.net/2018/07/11/manipulate-files-r/
 
 
 # References
