@@ -221,10 +221,9 @@ table2 <- cbind(table2_nona, table2_withna)
 
 table2 <- three %>%
         group_by(group) %>%
-        filter(!is.na(num_edges_invaliddashedpercent)) %>%
-        summarise(my_mean = mean(num_edges_invaliddashedpercent),
-                  n = n(),
-                  my_sum = sum(is.na(num_edges_invaliddashedpercent)))
+        summarise(Mean_invaliddashedpercent = mean(num_edges_invaliddashedpercent, na.rm = TRUE),
+                  N = n(),
+                  NAs = sum(is.na(num_edges_invaliddashedpercent)))
 
 table2
 
