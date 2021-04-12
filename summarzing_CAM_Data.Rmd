@@ -221,7 +221,7 @@ table2 <- cbind(table2_nona, table2_withna)
 
 table2 <- three %>%
         group_by(group) %>%
-        summarise(Mean_invaliddashedpercent = mean(num_edges_invaliddashedpercent, na.rm = TRUE),
+        summarise(mean_invaliddashedpercent = sprintf("%0.2f", mean(num_edges_invaliddashedpercent * 100, na.rm = TRUE)),
                   N = n(),
                   NAs = sum(is.na(num_edges_invaliddashedpercent)))
 
@@ -230,10 +230,24 @@ table2
 table_whyisdashedhigh <- three %>%
   group_by(group) %>%
   filter(!is.na(num_edges_invaliddashedpercent)) %>%
+  select(!(CAM_ID:assortativity_valence:assortativityDegree)) %>%
   summarise_if(is.numeric, mean)
 
 table_whyisdashedhigh
 
+# diameter_weighted low -> num_edges_invaliddashedpercent low (study3)
+# mean_valence_normed high -> num_edges_invaliddashedpercent low
+# study3 nur 11% invalid: diameter_weighted lowest, mean_valence_normed highest, meanWeightEdges lowest, mean_valence_normed lowest, mean_valence lowest
+# was dagegen spricht, study2germany 20% invalid: diameter_weighted highest
+# korrelation zwischen: je höher/niedriger mean_valence(_normed) desto mehr/geringer fällt num_edges_invaliddashedpercent aus
+
+cor.test(table_whyisdashedhigh$mean_valence, table_whyisdashedhigh$num_edges_invaliddashedpercent)
+
+# cor.test(table_whyisdashedhigh$mean_valence[1], table_whyisdashedhigh$num_edges_invaliddashedpercent[1])
+
+# cor.test(table_whyisdashedhigh$mean_valence[2], table_whyisdashedhigh$num_edges_invaliddashedpercent[2])
+
+# cor.test(table_whyisdashedhigh$mean_valence[3], table_whyisdashedhigh$num_edges_invaliddashedpercent[3])
 
 ```
 
