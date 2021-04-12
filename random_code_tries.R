@@ -2,7 +2,7 @@ library(tidyverse)
 
 ethikcamcsv <- read.csv("data/ethikcam.csv", header = T, sep = ';')
 
-ethikcamcsv %>%
+ethikcomparison <- ethikcamcsv %>%
   summarise(Linienvergleich = ethikcamcsv$Linienpost - ethikcamcsv$Linienpre,
             Strichevergleich = ethikcamcsv$Strichepost - ethikcamcsv$Strichepre,
             Pfeilvergleich = ethikcamcsv$Pfeilpost - ethikcamcsv$Pfeilpre,
