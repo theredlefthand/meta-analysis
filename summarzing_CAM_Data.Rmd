@@ -163,20 +163,21 @@ boxplot(three$num_edges_dashed)
 
 
 # Ideen:
-# Percentage of nodes other than 0
+# Percentage of nodes other than 0 -solved
 # If more node variation then X more often?
 # Falls mean von num_nodes gering ausfällt, fallen dann auch andere nodes geringer aus?
 # Hat mean_valence einen Einfluss auf X?
 # num_nodes_pos minus num_nodes_neg
-# Wenn durchschnittlich mehr nodes auch gleich durchschnittlich mehr num_edges?
+# Wenn durchschnittlich mehr nodes auch gleich durchschnittlich mehr num_edges? -solved
+# Welche statistischen Tests evtl. erheben?
+# Welche Werte sind besonders wichtig, diese zu vergleichen?
+# Ich habe bisher viel mit mean gearbeitet, davon wegkommen?
 
 three %>%
   group_by(group) %>%
   count(num_nodes_ambi)
 
 # Percentage of nodes other than 0
-# teilt noch nicht durch die gezählte Anzahl an Zeilen (nrows) sondern durch die manuell gezählte
-
 
 # building a table (wip)
 
