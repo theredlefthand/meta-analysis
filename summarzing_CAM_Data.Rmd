@@ -250,6 +250,19 @@ cor.test(table_whyisdashedhigh$mean_valence, table_whyisdashedhigh$num_edges_inv
 
 # cor.test(table_whyisdashedhigh$mean_valence[3], table_whyisdashedhigh$num_edges_invaliddashedpercent[3])
 
+# Lineare Regression
+
+linearer <- lm(num_edges ~ num_nodes, data=three)
+
+summary(linearer)
+
+plot(three$num_edges, three$num_nodes, xlab="Predictor", ylab="Outcome", col="darkblue", pch=16, main="Simple Linear Regression")
+
+for (i in 1:length(linearer$fitted.values))
+  lines(c(three$num_edges[i], three$num_edges[i]), c(three$num_nodes[i], linearer$fitted.values[i]), col="blue")
+
+abline(linearer, col="darkred")
+
 ```
 
 
