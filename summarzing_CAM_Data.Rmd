@@ -126,7 +126,41 @@ The aim of this document is to summarize CAM data over different studies. Theref
 
 # Violations of CAM rules
 incompatible connections... @thagard2010empathica
+```{r nodes3, results='markup'}
+# Invalid dashed (negative -- negative)
 
+three$num_edges_invaliddashedpercent <- three$num_edges_invaliddashed / three$num_edges_dashed
+
+table2_nona <- three %>%
+  group_by(group) %>%
+  filter(!is.na(num_edges_invaliddashedpercent)) %>%
+  summarise(mean(num_edges_invaliddashedpercent), n())
+
+table2_withna <- three %>%
+  group_by(group) %>%
+  summarise(sum(is.na(num_edges_invaliddashedpercent)))
+
+table2 <- cbind(table2_nona, table2_withna)
+
+table2 <- three %>%
+        group_by(group) %>%
+        summarise("Mean of invalid dashed %" = sprintf("%0.2f", mean(num_edges_invaliddashedpercent * 100, na.rm = TRUE)),
+                  N = n(),
+                  NAs = sum(is.na(num_edges_invaliddashedpercent)))
+
+table2
+
+table_whyisdashedhigh <- three %>%
+  group_by(group) %>%
+  filter(!is.na(num_edges_invaliddashedpercent)) %>%
+  select(!(CAM_ID:assortativity_valence:assortativityDegree)) %>%
+  summarise_if(is.numeric, mean) %>%
+  mutate(across(where(is.numeric), round, 2))
+
+table_whyisdashedhigh
+
+
+```
 
 
 # apply semantic dictionaries
