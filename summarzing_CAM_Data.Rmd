@@ -74,7 +74,16 @@ study2germany$group <- "study2germany"
 study3$group <- "study3"
 three <- rbind(study2canada, study2germany, study3)
 
-three$centralityDummy_CoronaPandemie <- NULL # constant, data entry error
+three$centralityDummy_CoronaPandemie <- NULL 
+
+
+three$num_edges_invaliddashedpercent <- three$num_edges_invaliddashed / three$num_edges_dashed
+three$num_edges_invaliddashedpercent[three$num_edges_invaliddashedpercent == 0] <- NA
+
+three$dummy_edges_invaliddashedpercen <- ifelse(is.na(three$num_edges_invaliddashedpercent), yes = 0, no = 1)
+
+
+# constant, data entry error
 # or
 # reflective_column <- function(df, colname = "group") {df[[colname]] <- deparse(substitute(df)); df}
 # three <- rbind(reflective_column(study2canada), reflective_column(study2germany), reflective_column(study3))
@@ -126,10 +135,10 @@ The aim of this document is to summarize CAM data over different studies. Theref
 
 # Violations of CAM rules
 incompatible connections... @thagard2010empathica
-```{r nodes3, results='markup'}
+```{r nodes13, results='markup'}
 # Invalid dashed (negative -- negative)
 
-three$num_edges_invaliddashedpercent <- three$num_edges_invaliddashed / three$num_edges_dashed
+
 
 table2_nona <- three %>%
   group_by(group) %>%
@@ -142,23 +151,26 @@ table2_withna <- three %>%
 
 table2 <- cbind(table2_nona, table2_withna)
 
+
 table2 <- three %>%
         group_by(group) %>%
         summarise("Mean of invalid dashed %" = sprintf("%0.2f", mean(num_edges_invaliddashedpercent * 100, na.rm = TRUE)),
-                  N = n(),
-                  NAs = sum(is.na(num_edges_invaliddashedpercent)))
+                  "number invalid dashed" = sum(!is.na(num_edges_invaliddashedpercent)),
+                  "number of CAMs" = n())
 
 table2
 
-table_whyisdashedhigh <- three %>%
-  group_by(group) %>%
-  filter(!is.na(num_edges_invaliddashedpercent)) %>%
+table_whyisdashedhigh_mean <- three %>%
+ group_by(group, dummy_edges_invaliddashedpercen) %>%
   select(!(CAM_ID:assortativity_valence:assortativityDegree)) %>%
-  summarise_if(is.numeric, mean) %>%
-  mutate(across(where(is.numeric), round, 2))
+  summarise_if(is.numeric, mean)
+table_whyisdashedhigh_mean
 
-table_whyisdashedhigh
-
+  table_whyisdashedhigh_sd <- three %>%
+ group_by(group, dummy_edges_invaliddashedpercen) %>%
+  select(!(CAM_ID:assortativity_valence:assortativityDegree)) %>%
+  summarise_if(is.numeric, sd)
+table_whyisdashedhigh_sd
 
 ```
 
