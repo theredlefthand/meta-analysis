@@ -263,6 +263,8 @@ for (i in 1:length(linearer$fitted.values))
 
 abline(linearer, col="darkred")
 
+scatter.smooth(x=three$num_edges, y=three$num_nodes, main="Edges ~ Nodes") 
+
 ```
 
 
