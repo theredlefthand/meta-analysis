@@ -159,18 +159,23 @@ table2 <- three %>%
                   "number of CAMs" = n())
 
 table2
+# table2 %>% stargazer(out = "aa.html", type = "html", summary = FALSE)
 
 table_whyisdashedhigh_mean <- three %>%
  group_by(group, dummy_edges_invaliddashedpercen) %>%
   select(!(CAM_ID:assortativity_valence:assortativityDegree)) %>%
   summarise_if(is.numeric, mean)
 table_whyisdashedhigh_mean
+# table_whyisdashedhigh_mean %>% stargazer(out = "bb.html", type = "html", summary = FALSE)
 
   table_whyisdashedhigh_sd <- three %>%
  group_by(group, dummy_edges_invaliddashedpercen) %>%
   select(!(CAM_ID:assortativity_valence:assortativityDegree)) %>%
   summarise_if(is.numeric, sd)
 table_whyisdashedhigh_sd
+
+
+
 
 ```
 
@@ -336,11 +341,13 @@ three %>%
 
 ```{r randomcode 2, results='markup'}
 psych::cor.plot(r = cor(three[, 2:23], use = "pairwise.complete.obs"), upper = FALSE, xlas = 2)
-three$num_edges_invaliddashedpercent <- three$num_edges_invaliddashed / three$num_edges_dashed
+# three$num_edges_invaliddashedpercent <- three$num_edges_invaliddashed / three$num_edges_dashed
 
 # save_graphic(filename = "network indicators all datasets")
 # psych::cor.plot(r = cor(three[, 2:23], use = "pairwise.complete.obs"), upper = FALSE, xlas = 2)
 # dev.off()
+psych::cor.plot(r = cor(three[, c(2:24, 26)], use = "pairwise.complete.obs"), upper = FALSE, xlas = 2)
+plot(three$num_edges_invaliddashedpercent, three$assortativity_valence)
 ```
 
 
