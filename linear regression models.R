@@ -39,9 +39,6 @@ usePackage("Rcmdr")
 ##################
 ### linear regression model
 # Fit the full model
-od_three <- three %>%
-  select(!(CAM_ID:num_edges_invaliddashedpercent))
-
 rmna_three <- na.omit(three)
 
 full.model <- lm(rmna_three$mean_valence ~., data = rmna_three)
@@ -56,17 +53,17 @@ summary(step.model)
 
 ### GLM
 example(birthwt)
-birthwt.glm <- glm(low ~ ., family = binomial, data = bwt)
-birthwt.step <- stepAIC(object = birthwt.glm, direction = "both",
+three.glm <- glm(num_nodes ~ ., family = gaussian, data = rmna_three)
+three.step <- stepAIC(object = three.glm, direction = "both",
                         trace = TRUE)
-birthwt.step$anova
-summary(birthwt.step)
+three.step$anova
+summary(three.step)
 
 ##################
 # leaps package
 ##################
 usePackage("leaps")
-models <- regsubsets(Fertility~., data = swiss, nvmax = 5,
+models <- regsubsets(num_nodes ~ ., data = rmna_three, nvmax = 5,
                      method = "seqrep")
 summary(models)
 
@@ -81,12 +78,12 @@ set.seed(123)
 # Set up repeated k-fold cross-validation
 train.control <- trainControl(method = "cv", number = 10)
 # Train the model
-step.model <- train(Fertility ~., data = swiss,
+step.model.k <- train(num_nodes ~., data = rmna_three,
                     method = "leapBackward",
                     tuneGrid = data.frame(nvmax = 1:5),
                     trControl = train.control
 )
-step.model$results
-step.model$bestTune
-summary(step.model$finalModel)
-coef(step.model$finalModel, 4)
+step.model.k$results
+step.model.k$bestTune
+summary(step.model.k$finalModel)
+coef(step.model.k$finalModel, 4)
