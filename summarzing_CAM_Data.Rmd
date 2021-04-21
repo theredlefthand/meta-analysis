@@ -67,26 +67,21 @@ study3 <- as.data.frame(sapply(study3, as.numeric))
 ```
 
 ```{r data preperation, include=FALSE}
-allthree <- rbind(study2canada, study2germany, study3)
-
+## dummy variable for every study
 study2canada$group <- "study2canada"
 study2germany$group <- "study2germany"
 study3$group <- "study3"
-three <- rbind(study2canada, study2germany, study3)
+allstudies <- rbind(study2canada, study2germany, study3)
 
-three$centralityDummy_CoronaPandemie <- NULL 
+## remove variables
+allstudies$centralityDummy_CoronaPandemie <- NULL 
 
-
-three$num_edges_invaliddashedpercent <- three$num_edges_invaliddashed / three$num_edges_dashed
-three$num_edges_invaliddashedpercent[three$num_edges_invaliddashedpercent == 0] <- NA
-
-three$dummy_edges_invaliddashedpercen <- ifelse(is.na(three$num_edges_invaliddashedpercent), yes = 0, no = 1)
-
-
-# constant, data entry error
-# or
-# reflective_column <- function(df, colname = "group") {df[[colname]] <- deparse(substitute(df)); df}
-# three <- rbind(reflective_column(study2canada), reflective_column(study2germany), reflective_column(study3))
+## add variables
+# percent of invaliddashed
+allstudies$num_edges_invaliddashedpercent <- allstudies$num_edges_invaliddashed / allstudies$num_edges_dashed
+allstudies$num_edges_invaliddashedpercent[allstudies$num_edges_invaliddashedpercent == 0] <- NA
+# dummy of invaliddashed
+allstudies$dummy_edges_invaliddashedpercen <- ifelse(is.na(allstudies$num_edges_invaliddashedpercent), yes = 0, no = 1)
 ```
 
 ```{r functions, include=FALSE}
@@ -120,7 +115,58 @@ save_graphic <- function(filename){
                dpi= "auto",
                bg = "white")
 }
+
+
+
+
+## create ANOVA table: 
+#!!! sensitive function to increasing groups
+anovatable <- function(dat_all = allstudies, vec_AVs = NULL){
+vec_vars <- c()
+vec_Fvalue <- c()
+vec_pvalue <- c()
+vec_sigdiff <- c()
+
+## des vectors:
+vec_des_study2canada <- c()
+vec_des_study2germany <- c()
+vec_des_study3 <- c()
+##
+h = 1
+
+for(i in 1:length(vec_AVs)){
+tmp <- aov(dat_all[, vec_AVs[i]] ~ group, data=dat_all)
+
+if(summary(tmp)[[1]][["Pr(>F)"]][1] < .05){
+  # print(summary(tmp))
+  vec_vars[h] <- vec_AVs[i]
+  vec_Fvalue[h] <- summary(tmp)[[1]][["F value"]][1]
+  vec_pvalue[h] <- summary(tmp)[[1]][["Pr(>F)"]][1]
+
+  ## post hoc test (TukeyHSD)
+  tmp_post <- TukeyHSD(tmp)
+  vec_sigdiff[h] <- paste0(rownames(tmp_post$group)[tmp_post$group[,4] < .05], collapse = ", ")
+  ##
+  
+  ## descreptive means and SD
+  
+vec_des_study2canada[h] <- paste0(round(x = tmp_des[1,2], digits = 2), " (", round(x = tmp_des[1,3], digits = 2),")")
+vec_des_study2germany[h] <-  paste0(round(x = tmp_des[2,2], digits = 2), " (", round(x = tmp_des[2,3], digits = 2),")")
+vec_des_study3[h] <- paste0(round(x = tmp_des[3,2], digits = 2), " (", round(x = tmp_des[3,3], digits = 2),")")
+  ##
+  h = h + 1
+  }
+}
+  
+outdat <- data.frame(AV = vec_vars, Fvalue = vec_Fvalue, pvalue = vec_pvalue, sigdiff = vec_sigdiff, meanSD_study2canada = vec_des_study2canada, meanSD_study2germany = vec_des_study2germany, meanSD_study3 = vec_des_study3)
+
+  return(outdat)
+}
+
+anovatable(dat_all = allstudies, vec_AVs = colnames(allstudies)[c(2:24, 26)])
 ```
+
+
 This is an [R Markdown](http://rmarkdown.rstudio.com) document. Instructions for writing these documents and background information can be found in the book [R Markdown: The Definitive Guide](https://bookdown.org/yihui/rmarkdown/). When you execute code within the document, the results appear beneath the code. 
 
 The aim of this document is to summarize CAM data over different studies. Therefore descreptive and metaanalytical procedures are applied. Fundamental sources for this procedures are [Doing Meta-Analysis in R](https://bookdown.org/MathiasHarrer/Doing_Meta_Analysis_in_R/) and @borenstein2009meta
@@ -140,19 +186,19 @@ incompatible connections... @thagard2010empathica
 
 
 
-table2_nona <- three %>%
+table2_nona <- allstudies %>%
   group_by(group) %>%
   filter(!is.na(num_edges_invaliddashedpercent)) %>%
   summarise(mean(num_edges_invaliddashedpercent), n())
 
-table2_withna <- three %>%
+table2_withna <- allstudies %>%
   group_by(group) %>%
   summarise(sum(is.na(num_edges_invaliddashedpercent)))
 
 table2 <- cbind(table2_nona, table2_withna)
 
 
-table2 <- three %>%
+table2 <- allstudies %>%
         group_by(group) %>%
         summarise("Mean of invalid dashed %" = sprintf("%0.2f", mean(num_edges_invaliddashedpercent * 100, na.rm = TRUE)),
                   "number invalid dashed" = sum(!is.na(num_edges_invaliddashedpercent)),
@@ -161,14 +207,14 @@ table2 <- three %>%
 table2
 # table2 %>% stargazer(out = "aa.html", type = "html", summary = FALSE)
 
-table_whyisdashedhigh_mean <- three %>%
+table_whyisdashedhigh_mean <- allstudies %>%
  group_by(group, dummy_edges_invaliddashedpercen) %>%
   select(!(CAM_ID:assortativity_valence:assortativityDegree)) %>%
   summarise_if(is.numeric, mean)
 table_whyisdashedhigh_mean
 # table_whyisdashedhigh_mean %>% stargazer(out = "bb.html", type = "html", summary = FALSE)
 
-  table_whyisdashedhigh_sd <- three %>%
+  table_whyisdashedhigh_sd <- allstudies %>%
  group_by(group, dummy_edges_invaliddashedpercen) %>%
   select(!(CAM_ID:assortativity_valence:assortativityDegree)) %>%
   summarise_if(is.numeric, sd)
@@ -198,19 +244,19 @@ descreptivefunc(variable = "num_nodes")
 ```
 
 ```{r nodes3, results='markup'}
-three %>%
+allstudies %>%
   group_by(group) %>% 
   summarise(mean(meanDistance_directed))
 
-three %>% 
+allstudies %>% 
   group_by(group) %>% 
   summarise(mean(num_nodes))
 
-three %>% 
+allstudies %>% 
   group_by(group) %>% 
   summarise(mean(mean_valence), median(mean_valence), sd(mean_valence))
 
-boxplot(three$num_edges_dashed)
+boxplot(allstudies$num_edges_dashed)
 
 
 # Ideen:
@@ -224,7 +270,7 @@ boxplot(three$num_edges_dashed)
 # Welche Werte sind besonders wichtig, diese zu vergleichen?
 # Ich habe bisher viel mit mean gearbeitet, davon wegkommen?
 
-three %>%
+allstudies %>%
   group_by(group) %>%
   count(num_nodes_ambi)
 
@@ -232,9 +278,9 @@ three %>%
 
 # building a table (wip)
 
-nodes_ambi_bigger0 <- with(three, c(sum(num_nodes_ambi > 0)) / nrow(three))
+nodes_ambi_bigger0 <- with(allstudies, c(sum(num_nodes_ambi > 0)) / nrow(allstudies))
 
-nodes_neut_bigger0 <- with(three, c(sum(num_nodes_neut > 0)) / nrow(three))
+nodes_neut_bigger0 <- with(allstudies, c(sum(num_nodes_neut > 0)) / nrow(allstudies))
                              
 nodes_plot <- data.frame(nodes_ambi_bigger0, nodes_neut_bigger0)
 
@@ -242,36 +288,36 @@ nodes_plot <- data.frame(nodes_ambi_bigger0, nodes_neut_bigger0)
 
 # num_nodes_pos minus num_nodes_neg
 
-three %>% 
+allstudies %>% 
   group_by(group) %>% 
   summarise(mean(num_nodes_pos - num_nodes_neg))
 
 # Wenn durchschnittlich mehr nodes auch gleich durchschnittlich mehr num_edges?
 
-with(three, c(sum(num_nodes > num_edges)))
-paste0(three$group[with(three, num_nodes > num_edges)], three$CAM_ID[with(three, num_nodes > num_edges)])
+with(allstudies, c(sum(num_nodes > num_edges)))
+paste0(allstudies$group[with(allstudies, num_nodes > num_edges)], allstudies$CAM_ID[with(allstudies, num_nodes > num_edges)])
 
 
-with(three, c(sum(num_nodes < num_edges)))
-with(three, c(sum(mean(num_nodes) > num_edges)))
-with(three, c(sum(mean(num_nodes) < num_edges)))
+with(allstudies, c(sum(num_nodes < num_edges)))
+with(allstudies, c(sum(mean(num_nodes) > num_edges)))
+with(allstudies, c(sum(mean(num_nodes) < num_edges)))
 
 # Invalid dashed
 
-three$num_edges_invaliddashedpercent <- three$num_edges_invaliddashed / three$num_edges_dashed
+allstudies$num_edges_invaliddashedpercent <- allstudies$num_edges_invaliddashed / allstudies$num_edges_dashed
 
-table2_nona <- three %>%
+table2_nona <- allstudies %>%
   group_by(group) %>%
   filter(!is.na(num_edges_invaliddashedpercent)) %>%
   summarise(mean(num_edges_invaliddashedpercent), n())
 
-table2_withna <- three %>%
+table2_withna <- allstudies %>%
   group_by(group) %>%
   summarise(sum(is.na(num_edges_invaliddashedpercent)))
 
 table2 <- cbind(table2_nona, table2_withna)
 
-table2 <- three %>%
+table2 <- allstudies %>%
         group_by(group) %>%
         summarise(mean_invaliddashedpercent = sprintf("%0.2f", mean(num_edges_invaliddashedpercent * 100, na.rm = TRUE)),
                   N = n(),
@@ -279,7 +325,7 @@ table2 <- three %>%
 
 table2
 
-table_whyisdashedhigh <- three %>%
+table_whyisdashedhigh <- allstudies %>%
   group_by(group) %>%
   filter(!is.na(num_edges_invaliddashedpercent)) %>%
   select(!(CAM_ID:assortativity_valence:assortativityDegree)) %>%
@@ -303,18 +349,18 @@ cor.test(table_whyisdashedhigh$mean_valence, table_whyisdashedhigh$num_edges_inv
 
 # Lineare Regression
 
-linearer <- lm(num_edges ~ num_nodes, data=three)
+linearer <- lm(num_edges ~ num_nodes, data=allstudies)
 
 summary(linearer)
 
-plot(three$num_edges, three$num_nodes, xlab="Predictor", ylab="Outcome", col="darkblue", pch=16, main="Simple Linear Regression")
+plot(allstudies$num_edges, allstudies$num_nodes, xlab="Predictor", ylab="Outcome", col="darkblue", pch=16, main="Simple Linear Regression")
 
 for (i in 1:length(linearer$fitted.values))
-  lines(c(three$num_edges[i], three$num_edges[i]), c(three$num_nodes[i], linearer$fitted.values[i]), col="blue")
+  lines(c(allstudies$num_edges[i], allstudies$num_edges[i]), c(allstudies$num_nodes[i], linearer$fitted.values[i]), col="blue")
 
 abline(linearer, col="darkred")
 
-scatter.smooth(x=three$num_edges, y=three$num_nodes, main="Edges ~ Nodes") 
+scatter.smooth(x=allstudies$num_edges, y=allstudies$num_nodes, main="Edges ~ Nodes") 
 
 ```
 
@@ -333,21 +379,21 @@ Blah blah [see @MAkreil2018staircaseelevator, pp. 20ff.]...
 
 # Julius code
 ```{r randomcode 1, results='markup'}
-three %>%
+allstudies %>%
   mutate(baseline = mean(num_nodes), baselineboolean = as.numeric(num_nodes < baseline)) %>%
   group_by(group, baselineboolean) %>%
   summarise(mean(num_nodes_pos))
 ```
 
 ```{r randomcode 2, results='markup'}
-psych::cor.plot(r = cor(three[, 2:23], use = "pairwise.complete.obs"), upper = FALSE, xlas = 2)
-# three$num_edges_invaliddashedpercent <- three$num_edges_invaliddashed / three$num_edges_dashed
+psych::cor.plot(r = cor(allstudies[, 2:23], use = "pairwise.complete.obs"), upper = FALSE, xlas = 2)
+# allstudies$num_edges_invaliddashedpercent <- allstudies$num_edges_invaliddashed / allstudies$num_edges_dashed
 
 # save_graphic(filename = "network indicators all datasets")
-# psych::cor.plot(r = cor(three[, 2:23], use = "pairwise.complete.obs"), upper = FALSE, xlas = 2)
+# psych::cor.plot(r = cor(allstudies[, 2:23], use = "pairwise.complete.obs"), upper = FALSE, xlas = 2)
 # dev.off()
-psych::cor.plot(r = cor(three[, c(2:24, 26)], use = "pairwise.complete.obs"), upper = FALSE, xlas = 2)
-plot(three$num_edges_invaliddashedpercent, three$assortativity_valence)
+psych::cor.plot(r = cor(allstudies[, c(2:24, 26)], use = "pairwise.complete.obs"), upper = FALSE, xlas = 2)
+plot(allstudies$num_edges_invaliddashedpercent, allstudies$assortativity_valence)
 ```
 
 
